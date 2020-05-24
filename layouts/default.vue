@@ -51,6 +51,8 @@ fixed:false,
 drawer: true,
 menus : [
   { icon: 'mdi-apps', title: 'Home',to: '/' },
+  { icon: 'mdi-apps', title: 'Level',to: '/levels' },
+  { icon: 'mdi-apps', title: 'Subject',to: '/subjects' },
 ],      
 
 miniVariant: false,

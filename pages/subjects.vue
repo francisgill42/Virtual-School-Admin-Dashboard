@@ -17,7 +17,7 @@
   </div>
   <v-data-table
     :headers="headers"
-    :items="videos"
+    :items="subjects"
     :search="search"
     class="elevation-1"
   >
@@ -28,7 +28,7 @@
  
     <template v-slot:top>
       <v-toolbar flat color="">
-        <v-toolbar-title>Collections</v-toolbar-title>
+        <v-toolbar-title>Subjects</v-toolbar-title>
         <v-spacer></v-spacer>
        <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on }">
@@ -49,24 +49,11 @@
                   <v-select
                   :rules="Rules"
                   v-model="editedItem.level_id" 
-                  @change="get_data"
                   :items="levels"
                   item-value="id"
                   item-text="level" 
                   label="Level"
                   ></v-select>
-                  </v-col>
-                   <v-col>
-                  <v-select
-
-                  :rules="Rules"
-                  v-model="editedItem.subject_id" 
-                  :items="subjects"
-                  item-value="id"
-                  item-text="subject" 
-                  label="Subject"
-                  ></v-select>
-                  
                   </v-col>
                   </v-row>
 
@@ -75,7 +62,7 @@
                  <v-col>
                  <v-text-field
                   :rules="Rules"
-                  v-model="editedItem.title" 
+                  v-model="editedItem.subject" 
                   label="Title"
                   ></v-text-field>
                   
@@ -83,18 +70,6 @@
                  
                   </v-row>
 
-                   <v-row>
-
-                 <v-col>
-                 <v-text-field
-                  :rules="Rules"
-                  v-model="editedItem.link" 
-                  label="Link"
-                  ></v-text-field>
-                  
-                  </v-col>
-                 
-                  </v-row>
                   
               </v-container>
             </v-card-text>
@@ -150,23 +125,11 @@
       dialog: false,
       headers: [
        
-        {
-          text: 'title',
-          align: 'left',
-          sortable: false,
-          value: 'title',
-        },
-        {
-          text: 'link',
-          align: 'left',
-          sortable: false,
-          value: 'link',
-        },
          {
           text: 'subject',
           align: 'left',
           sortable: false,
-          value: 'subject.subject',
+          value: 'subject',
         },
          {
           text: 'level',
@@ -181,20 +144,15 @@
      
       editedItem: {
        level_id:'',
-       subject_id:'',
-       title:'',
-       link:''     
-      },
+       subject:'',
+       },
       defaultItem: {
        level_id:'',
-       subject_id:'',
-       title:'',
-       link:''
-      },
+       subject:'',
+       },
       response : {
         msg:''
       },
-      videos:[],
       levels:[],
       subjects:[],
       Rules : [
@@ -216,8 +174,8 @@
 
     async created () {
 
-     const videos = await this.$axios.get('videos');
-     this.videos = videos.data;
+     const subjects = await this.$axios.get('subjects');
+     this.subjects = subjects.data;
      
      const levels = await this.$axios.get('levels');
      this.levels = levels.data;
@@ -226,16 +184,8 @@
     methods: {
 
     
-      get_data () {
-            this.$axios.get('get_data_for_level/'+this.editedItem.level_id)
-                .then((res) =>{
-                this.subjects = res.data.subjects 
-                });
-      },
-
-    
       editItem (item) {
-          this.editedIndex = this.videos.indexOf(item)
+          this.editedIndex = this.subjects.indexOf(item)
           this.editedItem = Object.assign({}, item)
           this.dialog = true
           
@@ -243,13 +193,13 @@
 
       deleteItem (item) {
         confirm('Are you sure you want to delete this item?') && 
-         this.$axios.delete('videos/'+item.id)
+         this.$axios.delete('subjects/'+item.id)
             .then((res) => {
 
               if(res.data.response_status){ 
 
-              const index = this.videos.indexOf(item)
-              this.videos.splice(index, 1)
+              const index = this.subjects.indexOf(item)
+              this.subjects.splice(index, 1)
               this.snackbar = res.data.response_status;             
               this.response.msg = res.data.message;
 
@@ -269,19 +219,18 @@
         if(this.$refs.form.validate()){
          
               const payload = {
-                title: this.editedItem.title,
-                link: this.editedItem.link,
-                subject_id:this.editedItem.subject_id
+                level_id: this.editedItem.level_id,
+                subject:this.editedItem.subject
               }
 
 
            if (this.editedIndex > -1) {
 
-            this.$axios.put('videos/' + this.editedItem.id, payload)
+            this.$axios.put('subjects/' + this.editedItem.id, payload)
             .then(res => {
             if(res.data.response_status){  
-              const index = this.videos.findIndex(item => item.id == this.editedItem.id)
-              Object.assign(this.videos[index],res.data.updated_record);
+              const index = this.subjects.findIndex(item => item.id == this.editedItem.id)
+              Object.assign(this.subjects[index],res.data.updated_record);
               this.snackbar = res.data.response_status;
               this.response.msg = res.data.message;
               this.close()
@@ -291,12 +240,12 @@
            }
            else{
               
-            this.$axios.post('videos',payload)
+            this.$axios.post('subjects',payload)
               .then((res) => {
                
               if(res.data.response_status){ 
             
-              this.videos.push(res.data.new_record)
+              this.subjects.push(res.data.new_record)
               this.snackbar = res.data.response_status;
               this.response.msg = res.data.message;
 
