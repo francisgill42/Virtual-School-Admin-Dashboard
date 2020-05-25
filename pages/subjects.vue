@@ -21,10 +21,15 @@
     :search="search"
     class="elevation-1"
   >
-<template  v-slot:item.album_image="{ item }">
-<br>
-<img  height="50" width="50" :src="item.album_image" alt=""/>
-</template>
+
+  <template v-slot:item.subs="{ item }">
+     
+     <span v-for="(i,index) in item.subs" :key="index">
+       <v-chip small class="primary ma-1">
+         {{i.subject}}
+       </v-chip>
+     </span>
+    </template>
  
     <template v-slot:top>
       <v-toolbar flat color="">
@@ -124,20 +129,18 @@
       snackbar:false,
       dialog: false,
       headers: [
-       
-         {
-          text: 'subject',
-          align: 'left',
-          sortable: false,
-          value: 'subject',
+        {
+        text: 'level',
+        align: 'left',
+        sortable: false,
+        value: 'x',
         },
-         {
-          text: 'level',
-          align: 'left',
-          sortable: false,
-          value: 'level.level',
-        },
-       
+        {
+        text: 'subjects',
+        align: 'left',
+        sortable: false,
+        value: 'subs',
+        },       
         { text: 'Actions', value: 'action', sortable: false },
       ],
       editedIndex: -1,
@@ -174,8 +177,18 @@
 
     async created () {
 
-     const subjects = await this.$axios.get('subjects');
-     this.subjects = subjects.data;
+      const subjects = await this.$axios.get('subjects');
+      var subs = subjects.data;
+
+      var arr = [];
+
+      for (var x in subs) {
+        arr.push({x:x,subs:subs[x]});
+      }
+
+      console.log(arr);
+      
+    this.subjects = arr;
      
      const levels = await this.$axios.get('levels');
      this.levels = levels.data;
