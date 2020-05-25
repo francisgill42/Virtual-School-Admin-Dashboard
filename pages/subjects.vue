@@ -26,7 +26,13 @@
      
      <span v-for="(i,index) in item.subs" :key="index">
        <v-chip small class="primary ma-1">
-         {{i.subject}}
+        {{i.subject}}
+        <v-icon
+        small
+        @click="deleteItem(i)"
+        >
+        mdi-delete
+        </v-icon>
        </v-chip>
      </span>
     </template>
@@ -98,26 +104,6 @@
       </v-icon>
     </template>
 
-
-
-    <template v-slot:item.action="{ item }">
-       <v-icon
-        small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
-      <v-icon
-        small
-        @click="deleteItem(item)"
-      >
-        mdi-delete
-      </v-icon>
-    </template>
-    <template v-slot:no-data>
-      <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-    </template>
   </v-data-table>
   </v-app>
 </template>
@@ -129,11 +115,12 @@
       snackbar:false,
       dialog: false,
       headers: [
-        {
+     
+         {
         text: 'level',
         align: 'left',
         sortable: false,
-        value: 'x',
+        value: 'level',
         },
         {
         text: 'subjects',
@@ -141,7 +128,6 @@
         sortable: false,
         value: 'subs',
         },       
-        { text: 'Actions', value: 'action', sortable: false },
       ],
       editedIndex: -1,
      
@@ -177,18 +163,8 @@
 
     async created () {
 
-      const subjects = await this.$axios.get('subjects');
-      var subs = subjects.data;
+      await this.get_subjects();
 
-      var arr = [];
-
-      for (var x in subs) {
-        arr.push({x:x,subs:subs[x]});
-      }
-
-      console.log(arr);
-      
-    this.subjects = arr;
      
      const levels = await this.$axios.get('levels');
      this.levels = levels.data;
@@ -196,7 +172,6 @@
 
     methods: {
 
-    
       editItem (item) {
           this.editedIndex = this.subjects.indexOf(item)
           this.editedItem = Object.assign({}, item)
@@ -211,13 +186,25 @@
 
               if(res.data.response_status){ 
 
-              const index = this.subjects.indexOf(item)
-              this.subjects.splice(index, 1)
-              this.snackbar = res.data.response_status;             
-              this.response.msg = res.data.message;
-
+                this.get_subjects();
+                this.snackbar = res.data.response_status;             
+                this.response.msg = res.data.message;
+                
               }
             });
+
+      },
+      get_subjects(){
+          var arr = [];
+          this.$axios.get('subjects')
+          .then(res => {
+
+          var subs = res.data;    
+          for (var x in subs) {
+          arr.push({level:x,subs:subs[x]});
+          }
+          })
+          this.subjects = arr;
       },
 
       close () {
@@ -237,6 +224,7 @@
               }
 
 
+        
            if (this.editedIndex > -1) {
 
             this.$axios.put('subjects/' + this.editedItem.id, payload)
@@ -257,12 +245,12 @@
               .then((res) => {
                
               if(res.data.response_status){ 
-            
-              this.subjects.push(res.data.new_record)
+              this.get_subjects();  
               this.snackbar = res.data.response_status;
               this.response.msg = res.data.message;
-
               this.close()
+              
+
               
               }
 
