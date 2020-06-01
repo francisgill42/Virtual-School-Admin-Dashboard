@@ -21,6 +21,7 @@
     :search="search"
     class="elevation-1"
   >
+  
 <template  v-slot:item.album_image="{ item }">
 <br>
 <img  height="50" width="50" :src="item.album_image" alt=""/>
@@ -29,7 +30,18 @@
     <template v-slot:top>
       <v-toolbar flat color="">
         <v-toolbar-title>Collections</v-toolbar-title>
-        <v-spacer></v-spacer>
+         <v-divider
+          class="mx-4"
+          inset
+          vertical
+        ></v-divider> 
+          <v-text-field v-model="search" label="Search" class="mt-4"></v-text-field>
+         <v-divider
+          class="mx-4"
+          inset
+          vertical
+        ></v-divider> 
+
        <v-dialog v-model="dialog" max-width="500px">
             <template v-slot:activator="{ on }">
             <v-btn color="primary" small class="mb-2" v-on="on">New Item</v-btn>
